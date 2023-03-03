@@ -49,7 +49,7 @@ int main(int argc, const char** argv)
         return 1;
     }
 
-    wcout << "Waiting for a client to connect to the pipe..." << endl;
+    wcout << "Waiting for a client to connect to the pipe...." << endl;
 
     // This call blocks until a client process connects to the pipe
     BOOL result = ConnectNamedPipe(pipe, NULL);
