@@ -26,8 +26,7 @@ struct node {
     int y;
 };
 
-int main(int argc, const char** argv)
-{
+void namedPipe() {
     wcout << "Creating an instance of a named pipe..." << endl;
 
     // Create a pipe to send data
@@ -46,7 +45,7 @@ int main(int argc, const char** argv)
         wcout << "Failed to create outbound pipe instance.";
         // look up error code here using GetLastError()
         system("pause");
-        return 1;
+        return;
     }
 
     wcout << "Waiting for a client to connect to the pipe...." << endl;
@@ -58,16 +57,13 @@ int main(int argc, const char** argv)
         // look up error code here using GetLastError()
         CloseHandle(pipe); // close the pipe
         system("pause");
-        return 1;
+        return;
     }
 
     wcout << "Sending data to pipe..." << endl;
 
     // This call blocks until a client process reads all the data
     const wchar_t* data = L"*** Hello Pipe World ***";
-    node x;
-    x.x = 3;
-    x.y = 4;
 
     DWORD numBytesWritten = 0;
     result = WriteFile(
@@ -92,5 +88,12 @@ int main(int argc, const char** argv)
     wcout << "Done." << endl;
 
     system("pause");
+
+    return;
+}
+
+int main(int argc, const char** argv)
+{
+    namedPipe();
     return 0;
 }
