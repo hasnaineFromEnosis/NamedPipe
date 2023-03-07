@@ -21,6 +21,64 @@ Before closing it, run this client program.
 #include <windows.h>
 using namespace std;
 
+int wchartToInt(const wchar_t* arr)
+{
+    int result = 0;
+    int sign = 1;
+
+    // skip leading whitespace
+    while (*arr == L' ')
+        arr++;
+
+    // handle optional sign
+    if (*arr == L'+')
+        arr++;
+    else if (*arr == L'-')
+    {
+        sign = -1;
+        arr++;
+    }
+
+    // convert digits to integer
+    while (*arr >= L'0' && *arr <= L'9')
+    {
+        result = result * 10 + (*arr - L'0');
+        arr++;
+    }
+
+    return sign * result;
+}
+
+bool valid(char s) {
+    if (s >= 'A' && s <= 'Z') return 1;
+    if (s >= 'a' && s <= 'z') return 1;
+    if (s >= '0' && s <= '9') return 1;
+
+    return 0;
+}
+
+string wchartToString(const wchar_t *arr, int size) {
+    // Your wchar_t*
+    //wide char array
+    //wide char array
+    const wchar_t *wc = arr;
+
+    //convert from wide char to narrow char array
+    char ch[260];
+    char DefChar = ' ';
+    WideCharToMultiByte(CP_ACP, 0, wc, -1, ch, 260, &DefChar, NULL);
+
+    //A std:string  using the char* constructor.
+    std::string ss(ch);
+
+    while (ss.size() > size) {
+        ss.pop_back();
+    }
+
+    return ss;
+}
+
+
 int main(int argc, const char** argv)
 {
     wcout << "Connecting to pipe..." << endl;
@@ -58,9 +116,26 @@ int main(int argc, const char** argv)
     );
 
     if (result) {
+        int dataCount = wchartToInt(buffer);
         buffer[numBytesRead / sizeof(wchar_t)] = '\0'; // null terminate the string
-        wcout << "Number of bytes read: " << numBytesRead << endl;
-        wcout << "Message: " << buffer << endl;
+
+        for (int i = 0; i < dataCount; i++) {
+            wchar_t buffer[128];
+            DWORD numBytesRead = 0;
+            BOOL result = ReadFile(
+                pipe,
+                buffer, // the data from the pipe will be put here
+                127 * sizeof(wchar_t), // number of bytes allocated
+                &numBytesRead, // this will store number of bytes actually read
+                NULL // not using overlapped IO
+            );
+
+            cout << "Service Name: " << wchartToString(buffer, numBytesRead / sizeof(wchar_t)) << endl;
+
+            if (!result) {
+                wcout << "Failed to read data from the pipe." << endl;
+            }
+        }
     }
     else {
         wcout << "Failed to read data from the pipe." << endl;
